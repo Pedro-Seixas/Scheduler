@@ -2,7 +2,7 @@
 
 void run_fifo()
 {
-
+    
 }
 
 void run_sjf()

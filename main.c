@@ -1,9 +1,19 @@
 #include "scheduler.h"
 #include <stdio.h>
 
-
 int main()
-{
-    printf("Test");
+{    
+    // {id, arrival_time, burst_time, time_remaining, priority, timeline}
+    Job jobs[3] = {
+        {0, 0, 5, 0, 0, ""},
+        {0, 0, 5, 0, 0, ""},
+        {0, 0, 5, 0, 0, ""}
+    }    
+    
+    while(1)
+    {
+        run_fifo(jobs, 3);
+    }
+
     return 0;
 }

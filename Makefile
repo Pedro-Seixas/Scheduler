@@ -6,10 +6,10 @@ all = scheduler
 shell.o: scheduler.c scheduler.h
 	gcc -c scheduler.c
 
-main.o: main.c shell.h 
+main.o: main.c scheduler.h 
 	gcc -c main.c
 
-schnoz: main.o scheduler.o
+scheduler: main.o scheduler.o
 	gcc -o scheduler main.o scheduler.o
 
 clean:

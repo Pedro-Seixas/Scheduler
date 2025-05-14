@@ -1,5 +1,5 @@
-#ifndef SCHEDULER.H
-#define SCHEDULER.H
+#ifndef SCHEDULER_H
+#define SCHEDULER_H
 
 typedef struct 
 {
@@ -11,8 +11,8 @@ typedef struct
     char timeline[100];
 } Job;
 
-void run_fifo();
-void run_sjf();
-void run_priority();
-void run_job();
-#endif SCHEDULER.H
+void run_fifo(Job jobs, quantity);
+void run_sjf(Job jobs, quantity);
+void run_priority(Job jobs, quantity);
+void run_job(Job job, quantity);
+#endif

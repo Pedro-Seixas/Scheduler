@@ -1,0 +1,7 @@
+# Ignore swp files
+*.swp
+
+# Ignore o and bin files
+*.o
+*.out
+*.exe
