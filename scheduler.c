@@ -49,7 +49,9 @@ int is_queue_full(Queue* q){
         return 0;
     }
 }
+
 void run_fifo(Queue* q, Job* jobs, int quantity){
+    int current_time = 0;
     while(1){
         // do something
     } 
