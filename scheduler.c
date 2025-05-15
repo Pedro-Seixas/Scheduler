@@ -1,5 +1,6 @@
 #include "scheduler.h"
 #include <stdio.h>
+#include <string.h>
 
 void print_queue(Queue* q){
     for(int i = q->front; i < q->rear + 1; i++){
@@ -50,10 +51,36 @@ int is_queue_full(Queue* q){
     }
 }
 
+void append_string(char *s, const char *to_append){
+    if (strlen(s) + strlen(to_append) < sizeof(s)){
+        strcat(s, to_append);
+    }
+}
+
+void check_job_state(Queue* q, Job* jobs, int quantity, int current_time){
+    for(int i = 0; i < quantity; i++){
+        if(jobs[i].arrival_time <= current_time){
+            jobs[i].state = READY;
+            enqueue(q, &jobs[i]);
+        }
+        if(jobs[i].burst_time == 0){
+            jobs[i].state = DONE;
+        }
+    }
+}
+
 void run_fifo(Queue* q, Job* jobs, int quantity){
     int current_time = 0;
+    int current_job = 0;
+
     while(1){
-        // do something
+       if(current_job == quantity){
+           current_job = 0;
+       }
+       for(int i = 0; i < jobs[current_job].burst_time; i++){
+           run_job(&jobs[current_job]);
+       }
+       current_job++;
     } 
 }
 
@@ -65,6 +92,8 @@ void run_priority(Queue* q, Job* jobs, int quantity){
 
 }
 
-void run_job(Queue* q, Job* job, int quantity){
-
+void run_job(Job* job){
+    char* c = "#";
+    append_string(job->timeline, c);
+    job->time_remaining--;
 }

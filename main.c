@@ -12,11 +12,14 @@ int comp(const void* a, const void* b){
 // Main function
 int main()
 {    
+    Queue queue;
+    init_queue(&queue);
+
     // {id, arrival_time, burst_time, time_remaining, priority, timeline}
     Job jobs[3] = {
-        {0, 4, 5, 5, 0, "A"},
-        {1, 1, 3, 3, 0, "B"},
-        {2, 3, 6, 6, 0, "C"}
+        {0, 4, 5, 5, 0, "A", 0},
+        {1, 1, 3, 3, 0, "B", 0},
+        {2, 3, 6, 6, 0, "C", 0}
     };
     
     // Defining parameters for qsort function
@@ -25,8 +28,6 @@ int main()
     // Quick Sort
     qsort(jobs, num_jobs, sizeof(Job), comp);
     
-    for(int i = 0; i < 3; i++){
-        printf("%s\n", jobs[i].timeline);
-    }
+    run_fifo(&queue, jobs, 3); 
     return 0;
 }
