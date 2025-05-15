@@ -49,20 +49,20 @@ int is_queue_full(Queue* q){
         return 0;
     }
 }
-void run_fifo(Job* jobs, int quantity){
+void run_fifo(Queue* q, Job* jobs, int quantity){
     while(1){
         // do something
     } 
 }
 
-void run_sjf(Job* jobs, int quantity){
+void run_sjf(Queue* q, Job* jobs, int quantity){
 
 }
 
-void run_priority(Job* jobs, int quantity){
+void run_priority(Queue* q, Job* jobs, int quantity){
 
 }
 
-void run_job(Job* job, int quantity){
+void run_job(Queue* q, Job* job, int quantity){
 
 }
