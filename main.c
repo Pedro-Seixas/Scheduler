@@ -8,12 +8,8 @@ int main()
         {0, 0, 5, 0, 0, ""},
         {0, 0, 5, 0, 0, ""},
         {0, 0, 5, 0, 0, ""}
-    }    
-    
-    while(1)
-    {
-        run_fifo(jobs, 3);
     }
+    run_fifo(jobs, 3);
 
     return 0;
 }
