@@ -3,7 +3,7 @@ OBJECTS = scheduler.o main.o
 TARGET = scheduler
 all = scheduler
 
-shell.o: scheduler.c scheduler.h
+scheduler.o: scheduler.c scheduler.h
 	gcc -c scheduler.c
 
 main.o: main.c scheduler.h 

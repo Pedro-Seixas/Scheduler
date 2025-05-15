@@ -71,16 +71,28 @@ void check_job_state(Queue* q, Job* jobs, int quantity, int current_time){
 
 void run_fifo(Queue* q, Job* jobs, int quantity){
     int current_time = 0;
-    int current_job = 0;
-
+    int job_index = 0;
+    int timeline_index = 0;
     while(1){
-       if(current_job == quantity){
-           current_job = 0;
+       Job*  current_job = &jobs[job_index];
+       if(current_job->arrival_time <= current_time){
+           for(int i = 0; i < current_job->burst_time; i++){
+               current_job->timeline[timeline_index] = '#';
+               current_job->time_remaining--;
+
+               for(int j = 0; j < quantity; j++){
+                   if(&jobs[j] != current_job){
+                       jobs[j].timeline[timeline_index] = '_';
+                   }
+               }
+               timeline_index++;
+           }
        }
-       for(int i = 0; i < jobs[current_job].burst_time; i++){
-           run_job(&jobs[current_job]);
+       job_index++;
+       if(job_index == quantity){
+           break;
        }
-       current_job++;
+       current_time++;
     } 
 }
 
