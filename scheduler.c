@@ -1,34 +1,68 @@
 #include "scheduler.h"
 #include <stdio.h>
 
-void enqueue(Queue* q, Job* job)
-{
-
+void print_queue(Queue* q){
+    for(int i = q->front; i < q->rear + 1; i++){
+        Job* job_temp = dequeue(q);
+        printf("%s\n", job_temp->timeline);
+    }
+}
+void init_queue(Queue* q){
+    q->rear = -1;
+    q->front = 0;
+    q->size = 0;
 }
 
-void dequeue(Queue* q, Job* job)
-{
-
+void enqueue(Queue* q, Job* job){
+    if(is_queue_full(q)){
+        printf("Queue Full\n");
+        return;
+    }
+    q->jobs[++q->rear] = job;
+    q->size++;
 }
-void run_fifo(Job* jobs, quantity)
-{
-    while(1)
-    {
-        if()
+
+Job* dequeue(Queue* q){
+    if(is_queue_empty(q)){
+        printf("Queue Empty\n");
+        return;
+    }
+
+    Job* job_temp = q->jobs[q->front++];
+    q->size--;
+
+    return job_temp;
+}
+
+int is_queue_empty(Queue* q){
+    if(q->size < 0){
+        return 1;
+    }else{
+        return 0;
+    }
+}
+
+int is_queue_full(Queue* q){
+    if(q->size == MAX_JOBS){
+        return 1;
+    }else{
+        return 0;
+    }
+}
+void run_fifo(Job* jobs, int quantity){
+    while(1){
+        // do something
     } 
 }
 
-void run_sjf(Job* jobs, quantity)
-{
+void run_sjf(Job* jobs, int quantity){
 
 }
 
-void run_priority(Job* jobs, quantity)
-{
+void run_priority(Job* jobs, int quantity){
 
 }
 
-void run_job(Job* job, quantity)
-{
+void run_job(Job* job, int quantity){
 
 }

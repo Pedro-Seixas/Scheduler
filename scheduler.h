@@ -15,16 +15,20 @@ typedef struct
 // Create a Queue data structure
 typedef struct
 {
-    Job jobs[MAX_JOBS];
+    Job* jobs[MAX_JOBS];
     int rear;
     int front;
+    int size;
 } Queue;
 
+void init_queue(Queue* q);
 void enqueue(Queue* q, Job* job);
-void dequeue(Queue* q, Job* job);
-void is_queue_empty(Queue* q);
-void run_fifo(Job* jobs, quantity);
-void run_sjf(Job* jobs, quantity);
-void run_priority(Job* jobs, quantity);
-void run_job(Job* job, quantity);
+Job* dequeue(Queue* q);
+int is_queue_full(Queue* q);
+int is_queue_empty(Queue* q);
+void print_queue(Queue* q);
+void run_fifo(Job* jobs, int quantity);
+void run_sjf(Job* jobs, int quantity);
+void run_priority(Job* jobs, int quantity);
+void run_job(Job* job, int quantity);
 #endif
