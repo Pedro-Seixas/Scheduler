@@ -71,6 +71,8 @@ void check_job_state(Queue* q, Job* jobs, int quantity, int current_time){
     }
 }
 
+// First in first out scheduling
+// It receives the jobs array sorted by arrival time
 void run_fifo(Queue* q, Job* jobs, int quantity){
     int current_time = 0;
     int job_index = 0;
