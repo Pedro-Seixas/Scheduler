@@ -1,6 +1,14 @@
 #include "scheduler.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
+
+// Compare function for qsort
+int comp(const void* a, const void* b){
+    Job* job_A = (Job *) a;
+    Job* job_B = (Job *) b;
+    return job_A->arrival_time - job_B->arrival_time;
+}
 
 void print_queue(Queue* q){
     for(int i = q->front; i < q->rear + 1; i++){
@@ -51,14 +59,6 @@ int is_queue_full(Queue* q){
     }
 }
 
-/*
-void append_string(char *s, const char *to_append){
-    if (strlen(s) + strlen(to_append) < sizeof(s)){
-        strcat(s, to_append);
-    }
-}
-*/
-
 void check_job_state(Queue* q, Job* jobs, int quantity, int current_time){
     for(int i = 0; i < quantity; i++){
         if(jobs[i].arrival_time <= current_time){
@@ -74,6 +74,12 @@ void check_job_state(Queue* q, Job* jobs, int quantity, int current_time){
 // First in first out scheduling
 // It receives the jobs array sorted by arrival time
 void run_fifo(Queue* q, Job* jobs, int quantity){
+    // Defining parameters for qsort function
+    int num_jobs = sizeof(jobs) / sizeof(jobs[0]);
+
+    // Quick Sort
+    qsort(jobs, num_jobs, sizeof(Job), comp);
+
     int current_time = 0;
     int job_index = 0;
     
@@ -105,10 +111,16 @@ void run_fifo(Queue* q, Job* jobs, int quantity){
        }
        job_index++;
     }
+
+    for(int i = 0; i < quantity; i++){
+        printf("%s\n", jobs[i].timeline);
+    }
+
 }
 
 void run_sjf(Queue* q, Job* jobs, int quantity){
-
+    int current_time = 0;
+    int job_index = 0;
 }
 
 void run_priority(Queue* q, Job* jobs, int quantity){
