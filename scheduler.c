@@ -85,7 +85,7 @@ void run_fifo(Queue* q, Job* jobs, int quantity){
 
                for(int j = 0; j < quantity; j++){
                    if(&jobs[j] != current_job){
-                       if(jobs[j].arrival_time > current_time)
+                       if(jobs[j].arrival_time > current_time || jobs[j].time_remaining <= 0)
                        {
                            jobs[j].timeline[current_time] = ' ';
                        }else{
