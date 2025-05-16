@@ -74,21 +74,26 @@ void check_job_state(Queue* q, Job* jobs, int quantity, int current_time){
 void run_fifo(Queue* q, Job* jobs, int quantity){
     int current_time = 0;
     int job_index = 0;
-    printf("Enters fifo\n");
+    
+    // Run for every job
     while(job_index < quantity){
        Job* current_job = &jobs[job_index];
 
        if(current_job->arrival_time <= current_time){
            for(int i = 0; i < current_job->burst_time; i++){
+               // Current job running
                current_job->timeline[current_time] = '#';
                current_job->time_remaining--;
-
+                
+               // Add "_" or " " to other processes that are not currently running
                for(int j = 0; j < quantity; j++){
                    if(&jobs[j] != current_job){
                        if(jobs[j].arrival_time > current_time || jobs[j].time_remaining <= 0)
                        {
+                           // Job idle or done
                            jobs[j].timeline[current_time] = ' ';
                        }else{
+                           // Job waiting
                            jobs[j].timeline[current_time] = '_';
                        }
                    }
