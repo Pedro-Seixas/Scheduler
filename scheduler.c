@@ -72,28 +72,27 @@ void check_job_state(Queue* q, Job* jobs, int quantity, int current_time){
 void run_fifo(Queue* q, Job* jobs, int quantity){
     int current_time = 0;
     int job_index = 0;
-    int timeline_index = 0;
-    while(1){
-       Job*  current_job = &jobs[job_index];
+    printf("Enters fifo\n");
+    while(job_index < quantity){
+       Job* current_job = &jobs[job_index];
        if(current_job->arrival_time <= current_time){
            for(int i = 0; i < current_job->burst_time; i++){
-               current_job->timeline[timeline_index] = '#';
+               current_job->timeline[current_time] = '#';
                current_job->time_remaining--;
 
                for(int j = 0; j < quantity; j++){
                    if(&jobs[j] != current_job){
-                       jobs[j].timeline[timeline_index] = '_';
+                       jobs[j].timeline[current_time] = '_';
                    }
                }
-               timeline_index++;
            }
        }
        job_index++;
-       if(job_index == quantity){
-           break;
-       }
        current_time++;
     } 
+    for(int i = 0; i < quantity; i++){
+        jobs[i].timeline[current_time] = '\0';
+    }
 }
 
 void run_sjf(Queue* q, Job* jobs, int quantity){

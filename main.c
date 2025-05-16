@@ -18,7 +18,7 @@ int main()
     // {id, arrival_time, burst_time, time_remaining, priority, timeline}
     Job jobs[3] = {
         {0, 4, 5, 5, 0, "", 0},
-        {1, 1, 3, 3, 0, "", 0},
+        {1, 0, 3, 3, 0, "", 0},
         {2, 3, 6, 6, 0, "", 0}
     };
     
