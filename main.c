@@ -13,9 +13,9 @@ int main()
 
     // {id, arrival_time, burst_time, time_remaining, priority, timeline, state}
     Job jobs[NUMBER_OF_JOBS] = {
-        {0, 5, 5, 5, 0, "", 0},
-        {1, 2, 3, 3, 0, "", 0},
-        {2, 0, 6, 6, 0, "", 0}
+        {0, 5, 5, 5, 0, "A", 0},
+        {1, 0, 3, 3, 0, "B", 0},
+        {2, 2, 6, 6, 0, "C", 0}
     };
     
     // Run scheduler

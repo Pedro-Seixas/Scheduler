@@ -72,13 +72,10 @@ void check_job_state(Queue* q, Job* jobs, int quantity, int current_time){
 }
 
 // First in first out scheduling
-// It receives the jobs array sorted by arrival time
+// It receives the jobs, then sort them by arrival time
 void run_fifo(Queue* q, Job* jobs, int quantity){
-    // Defining parameters for qsort function
-    int num_jobs = sizeof(jobs) / sizeof(jobs[0]);
-
     // Quick Sort
-    qsort(jobs, num_jobs, sizeof(Job), comp);
+    qsort(jobs, quantity, sizeof(Job), comp);
 
     int current_time = 0;
     int job_index = 0;
@@ -111,11 +108,6 @@ void run_fifo(Queue* q, Job* jobs, int quantity){
        }
        job_index++;
     }
-
-    for(int i = 0; i < quantity; i++){
-        printf("%s\n", jobs[i].timeline);
-    }
-
 }
 
 void run_sjf(Queue* q, Job* jobs, int quantity){
