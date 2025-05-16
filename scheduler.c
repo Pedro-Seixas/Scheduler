@@ -77,6 +77,7 @@ void run_fifo(Queue* q, Job* jobs, int quantity){
     printf("Enters fifo\n");
     while(job_index < quantity){
        Job* current_job = &jobs[job_index];
+
        if(current_job->arrival_time <= current_time){
            for(int i = 0; i < current_job->burst_time; i++){
                current_job->timeline[current_time] = '#';
@@ -84,16 +85,18 @@ void run_fifo(Queue* q, Job* jobs, int quantity){
 
                for(int j = 0; j < quantity; j++){
                    if(&jobs[j] != current_job){
-                       jobs[j].timeline[current_time] = '_';
+                       if(jobs[j].arrival_time > current_time)
+                       {
+                           jobs[j].timeline[current_time] = ' ';
+                       }else{
+                           jobs[j].timeline[current_time] = '_';
+                       }
                    }
                }
                current_time++;
            }
        }
        job_index++;
-    } 
-    for(int i = 0; i < quantity; i++){
-        jobs[i].timeline[current_time] = '\0';
     }
 }
 
