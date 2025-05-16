@@ -51,11 +51,13 @@ int is_queue_full(Queue* q){
     }
 }
 
+/*
 void append_string(char *s, const char *to_append){
     if (strlen(s) + strlen(to_append) < sizeof(s)){
         strcat(s, to_append);
     }
 }
+*/
 
 void check_job_state(Queue* q, Job* jobs, int quantity, int current_time){
     for(int i = 0; i < quantity; i++){
@@ -85,10 +87,10 @@ void run_fifo(Queue* q, Job* jobs, int quantity){
                        jobs[j].timeline[current_time] = '_';
                    }
                }
+               current_time++;
            }
        }
        job_index++;
-       current_time++;
     } 
     for(int i = 0; i < quantity; i++){
         jobs[i].timeline[current_time] = '\0';
@@ -105,6 +107,5 @@ void run_priority(Queue* q, Job* jobs, int quantity){
 
 void run_job(Job* job){
     char* c = "#";
-    append_string(job->timeline, c);
     job->time_remaining--;
 }
