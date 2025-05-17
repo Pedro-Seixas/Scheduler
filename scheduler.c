@@ -113,6 +113,11 @@ void run_fifo(Queue* q, Job* jobs, int quantity){
 void run_sjf(Queue* q, Job* jobs, int quantity){
     int current_time = 0;
     int job_index = 0;
+    qsort(jobs, quantity, sizeof(Job), comp);
+    
+    while(1){
+        
+    }
 }
 
 void run_priority(Queue* q, Job* jobs, int quantity){
