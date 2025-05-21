@@ -118,39 +118,45 @@ void run_fifo(Queue* q, Job* jobs, int quantity){
 
 void run_sjf(Queue* q, Job* jobs, int quantity){
     int current_time = 0;
-    int job_index = 0;
+    // int job_index = 0;
     int jobs_done = 0;
-    qsort(jobs, quantity, sizeof(Job), comp_sjf);
+    //qsort(jobs, quantity, sizeof(Job), comp_sjf);
     
     while(jobs_done != quantity){
-        Job* current_job = &jobs[job_index % quantity];
+        Job* current_job = NULL;
         
-        if(current_job->state == DONE){
-            job_index++;
-            continue;
+        // Select the shortest job
+        for(int i = 0; i < quantity; i++){
+            if(jobs[i].time_remaining <= current_time && jobs[i].state != DONE){
+                if(current_job == NULL || jobs[i].time_remaining < current_job->time_remaining){
+                    current_job = &jobs[i];
+                }
+            }
         }
 
-        if(current_job->arrival_time <= current_time){
+        if(current_job){
             current_job->timeline[current_time] = '#';
             current_job->time_remaining--;
 
             for(int i = 0; i < quantity; i++){
                 if(&jobs[i] != current_job){
-                    if(jobs[i].arrival_time > current_time || jobs[i].state == DONE){
+                    if(jobs[i].time_remaining > current_time || jobs[i].state == DONE){
                         jobs[i].timeline[current_time] = ' ';
                     }else{
                         jobs[i].timeline[current_time] = '_';
                     }
                 }
             }
-            current_time++;
-        }
-        job_index++;
 
-        if(current_job->time_remaining <= 0 && current_job->state != DONE){
-            current_job->state = DONE;
-            jobs_done++;
+            if(current_job->time_remaining <= 0 && current_job->state != DONE){
+                current_job->state = DONE;
+                jobs_done++;
+            }
+        }else{
+            printf("No job ready \n");
         }
+        current_time++;
+        
     }
 }
 
