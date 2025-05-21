@@ -19,8 +19,8 @@ int main()
     };
     
     // Run scheduler
-    run_fifo(&queue, jobs, NUMBER_OF_JOBS); 
-    
+    // run_fifo(&queue, jobs, NUMBER_OF_JOBS); 
+    run_sjf(&queue, jobs, NUMBER_OF_JOBS);
     // Print timelines
     for(int i = 0; i < NUMBER_OF_JOBS; i++){
         printf("%s\n", jobs[i].timeline);

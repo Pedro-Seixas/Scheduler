@@ -10,6 +10,12 @@ int comp(const void* a, const void* b){
     return job_A->arrival_time - job_B->arrival_time;
 }
 
+int comp_sjf(const void* a, const void* b){
+    Job* job_A = (Job *) a;
+    Job* job_B = (Job *) b;
+    return job_A->time_remaining - job_B->time_remanining;
+}
+
 void print_queue(Queue* q){
     for(int i = q->front; i < q->rear + 1; i++){
         Job* job_temp = dequeue(q);
@@ -113,7 +119,7 @@ void run_fifo(Queue* q, Job* jobs, int quantity){
 void run_sjf(Queue* q, Job* jobs, int quantity){
     int current_time = 0;
     int job_index = 0;
-    qsort(jobs, quantity, sizeof(Job), comp);
+    qsort(jobs, quantity, sizeof(Job), comp_sjf);
     
     while(1){
         
