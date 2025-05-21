@@ -130,33 +130,32 @@ void run_sjf(Queue* q, Job* jobs, int quantity){
                 if(current_job == NULL || jobs[i].time_remaining < current_job->time_remaining){
                     current_job = &jobs[i];
                 }
-            }else{
-                printf("%d not ready, Time remaining: %d, State: %d\n", jobs[i].id, jobs[i].time_remaining, jobs[i].state);
             }
         }
 
         if(current_job){
+            // Running job
             current_job->timeline[current_time] = '#';
             current_job->time_remaining--;
-
+            
+            // Idle or done jobs
             for(int i = 0; i < quantity; i++){
                 if(&jobs[i] != current_job){
-                    if(jobs[i].time_remaining > current_time || jobs[i].state == DONE){
+                    if(jobs[i].arrival_time > current_time || jobs[i].state == DONE){
                         jobs[i].timeline[current_time] = ' ';
                     }else{
                         jobs[i].timeline[current_time] = '_';
                     }
                 }
             }
-
+            
+            // Mark it as done
             if(current_job->time_remaining <= 0 && current_job->state != DONE){
                 current_job->state = DONE;
-                jobs_done++;
-                printf("%d\n", current_time);
+                jobs_done++;   
             }
-        }else{
-            printf("No job ready \n");
         }
+
         current_time++;
     }
 }
