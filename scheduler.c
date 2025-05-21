@@ -118,7 +118,6 @@ void run_fifo(Queue* q, Job* jobs, int quantity){
 
 void run_sjf(Queue* q, Job* jobs, int quantity){
     int current_time = 0;
-    // int job_index = 0;
     int jobs_done = 0;
     //qsort(jobs, quantity, sizeof(Job), comp_sjf);
     
@@ -127,10 +126,12 @@ void run_sjf(Queue* q, Job* jobs, int quantity){
         
         // Select the shortest job
         for(int i = 0; i < quantity; i++){
-            if(jobs[i].time_remaining <= current_time && jobs[i].state != DONE){
+            if(jobs[i].arrival_time <= current_time && jobs[i].state != DONE){
                 if(current_job == NULL || jobs[i].time_remaining < current_job->time_remaining){
                     current_job = &jobs[i];
                 }
+            }else{
+                printf("%d not ready, Time remaining: %d, State: %d\n", jobs[i].id, jobs[i].time_remaining, jobs[i].state);
             }
         }
 
@@ -151,12 +152,12 @@ void run_sjf(Queue* q, Job* jobs, int quantity){
             if(current_job->time_remaining <= 0 && current_job->state != DONE){
                 current_job->state = DONE;
                 jobs_done++;
+                printf("%d\n", current_time);
             }
         }else{
             printf("No job ready \n");
         }
         current_time++;
-        
     }
 }
 
