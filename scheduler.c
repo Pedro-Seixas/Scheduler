@@ -204,6 +204,17 @@ void run_priority(Queue* q, Job* jobs, int quantity){
     }
 }
 
+void run_rr(Queue* q, Job* jobs, int quantity){
+    int current_time = 0;
+    int jobs_done = 0;
+    
+    while(jobs_done != quantity){
+        Job* current_job = NULL;
+        // continue implementation
+    }
+}
+
+// TODO: Replace this with the running job part of sjf, priority and fifo (they are all the sameX)
 void run_job(Job* job){
     char* c = "#";
     job->time_remaining--;
