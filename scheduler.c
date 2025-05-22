@@ -161,7 +161,47 @@ void run_sjf(Queue* q, Job* jobs, int quantity){
 }
 
 void run_priority(Queue* q, Job* jobs, int quantity){
+    int current_time = 0;
+    int jobs_done = 0;
+    //qsort(jobs, quantity, sizeof(Job), comp_sjf);
+    
+    while(jobs_done != quantity){
+        Job* current_job = NULL;
+        
+        // Select the highest priority job
+        for(int i = 0; i < quantity; i++){
+            if(jobs[i].arrival_time <= current_time && jobs[i].state != DONE){
+                if(current_job == NULL || jobs[i].priority > current_job->priority){
+                    current_job = &jobs[i];
+                }
+            }
+        }
 
+        if(current_job){
+            // Running job
+            current_job->timeline[current_time] = '#';
+            current_job->time_remaining--;
+            
+            // Idle or done jobs
+            for(int i = 0; i < quantity; i++){
+                if(&jobs[i] != current_job){
+                    if(jobs[i].arrival_time > current_time || jobs[i].state == DONE){
+                        jobs[i].timeline[current_time] = ' ';
+                    }else{
+                        jobs[i].timeline[current_time] = '_';
+                    }
+                }
+            }
+            
+            // Mark it as done
+            if(current_job->time_remaining <= 0 && current_job->state != DONE){
+                current_job->state = DONE;
+                jobs_done++;   
+            }
+        }
+
+        current_time++;
+    }
 }
 
 void run_job(Job* job){
