@@ -207,10 +207,44 @@ void run_priority(Queue* q, Job* jobs, int quantity){
 void run_rr(Queue* q, Job* jobs, int quantity){
     int current_time = 0;
     int jobs_done = 0;
+    int job_index = -1;
     
     while(jobs_done != quantity){
         Job* current_job = NULL;
-        // continue implementation
+        
+        // Select next job
+        job_index = (job_index + 1) % 3;
+        
+        // See if next job is ready
+        if(jobs[job_index].arrival_time <= current_time && jobs[job_index].state != DONE){
+            current_job = &jobs[job_index];
+        }else{
+            continue;
+        }
+        
+        if(current_job){
+            // Running job
+            current_job->timeline[current_time] = '#';
+            current_job->time_remaining--;
+            
+            // Idle or done jobs
+            for(int i = 0; i < quantity; i++){
+                if(&jobs[i] != current_job){
+                    if(jobs[i].arrival_time > current_time || jobs[i].state == DONE){
+                        jobs[i].timeline[current_time] = ' ';
+                    }else{
+                        jobs[i].timeline[current_time] = '_';
+                    }
+                }
+            }
+            
+            // Mark it as done
+            if(current_job->time_remaining <= 0 && current_job->state != DONE){
+                current_job->state = DONE;
+                jobs_done++;   
+            }
+        }
+        current_time++;
     }
 }
 
