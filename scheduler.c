@@ -213,7 +213,7 @@ void run_rr(Queue* q, Job* jobs, int quantity){
         Job* current_job = NULL;
         
         // Select next job
-        job_index = (job_index + 1) % 3;
+        job_index = (job_index + 1) % quantity;
         
         // See if next job is ready
         if(jobs[job_index].arrival_time <= current_time && jobs[job_index].state != DONE){
