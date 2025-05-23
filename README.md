@@ -8,6 +8,11 @@ I have implemented a queue data structure but it has not been used yet, future w
 ## Future work: Implement all the states using queues
 ![image](https://github.com/user-attachments/assets/00bcfee7-e0a7-4750-87b9-127ee8dd7056)
 
+## To Run this Program
+Clone the repository and write the following in your terminal:
+```
+make scheduler
+```
 ## TODOs (in order)
 - Display throughput, wait time, response time, and turn-around time.
 - Add a Demo Screenshot to the README
