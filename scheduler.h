@@ -36,5 +36,5 @@ void run_fifo(Queue* q, Job* jobs, int quantity);
 void run_sjf(Queue* q, Job* jobs, int quantity);
 void run_priority(Queue* q, Job* jobs, int quantity);
 void run_rr(Queue* q, Job* jobs, int quantity);
-void run_job(Job* job);
+void run_job(Job* current_job, Job* jobs, int quantity, int current_time);
 #endif
