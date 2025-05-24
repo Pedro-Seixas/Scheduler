@@ -176,8 +176,6 @@ void run_priority(Queue* q, Job* jobs, int quantity){
                 if(current_job == NULL || jobs[i].priority > current_job->priority){
                     current_job = &jobs[i];
                 }
-            }else if(jobs[i].arrival_time > current_time){
-                jobs[i].state = IDLE;
             }
         }
 
@@ -195,7 +193,7 @@ void run_priority(Queue* q, Job* jobs, int quantity){
         pthread_cond_broadcast(&cond);
         pthread_mutex_unlock(&mutex);
 
-        usleep(100000);
+        usleep(1000);
         current_time++;
     }
 
@@ -242,22 +240,20 @@ void* run_job(void *arg){
 
     while(1){
         pthread_mutex_lock(args->mutex);
-        int current_time = *(args->current_time);
 
-        while(args->job->state == WAITING){
-            args->job->timeline[current_time] = '_';
+        while(args->job->state != RUNNING && args->job->state != DONE){
+            args->job->timeline[*args->current_time] = '_';
+            printf("Job id %d waiting at time %d \n", args->job->id, *args->current_time);
             pthread_cond_wait(args->cond, args->mutex);
         }
 
         if(args->job->state == DONE){
             pthread_mutex_unlock(args->mutex);
-            printf("Job id %d is done\n", args->job->id);
             break;
         }
 
-        args->job->timeline[current_time] = '#';
+        args->job->timeline[*args->current_time] = '#';
         args->job->time_remaining--;
-        
         printf("Job id %d running\n", args->job->id);
             
         if(args->job->time_remaining <= 0){
@@ -267,6 +263,6 @@ void* run_job(void *arg){
         }
 
         pthread_mutex_unlock(args->mutex);
-        usleep(100000);
+        usleep(1000);
     }
 }
