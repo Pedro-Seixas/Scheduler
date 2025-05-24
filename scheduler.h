@@ -6,6 +6,7 @@
 #define WAITING  2
 #define DONE     3
 #include <pthread.h>
+
 typedef struct 
 {
     int id;
@@ -30,6 +31,8 @@ typedef struct
 {
     Job* job;
     int* current_time;
+    pthread_mutex_t* mutex;
+    pthread_cond_t* cond;
 } ThreadArgs;
 
 void init_queue(Queue* q);

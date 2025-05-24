@@ -13,12 +13,12 @@ int main()
 
     // {id, arrival_time, burst_time, time_remaining, priority, timeline, state}
     Job jobs[NUMBER_OF_JOBS] = {
-        {0, 1, 4, 7, 2, "", 0},
+        {0, 1, 7, 7, 2, "", 0},
         {1, 0, 3, 3, 3, "", 0},
         {2, 0, 6, 6, 1, "", 0},
         {3, 0, 4, 4, 0, "", 0}
     };
-    
+   
     // Run scheduler
     // run_fifo(&queue, jobs, NUMBER_OF_JOBS); 
     // run_sjf(&queue, jobs, NUMBER_OF_JOBS);
