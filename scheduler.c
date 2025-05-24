@@ -176,6 +176,8 @@ void run_priority(Queue* q, Job* jobs, int quantity){
                 if(current_job == NULL || jobs[i].priority > current_job->priority){
                     current_job = &jobs[i];
                 }
+            }else if(jobs[i].arrival_time > current_time){
+                jobs[i].state = IDLE;
             }
         }
 
@@ -187,7 +189,8 @@ void run_priority(Queue* q, Job* jobs, int quantity){
             }
         }
 
-        printf("Job selected by scheduler id: %d at time: %d", current_job->id, current_time);
+        //printf("Job selected by scheduler id: %d at time: %d", current_job->id, current_time);
+        
         // Signal Thredas
         pthread_cond_broadcast(&cond);
         pthread_mutex_unlock(&mutex);
@@ -241,16 +244,17 @@ void* run_job(void *arg){
         pthread_mutex_lock(args->mutex);
         int current_time = *(args->current_time);
 
-        while(args->job->state != RUNNING && args->job->state != DONE){
+        while(args->job->state == WAITING){
             args->job->timeline[current_time] = '_';
             pthread_cond_wait(args->cond, args->mutex);
         }
 
         if(args->job->state == DONE){
             pthread_mutex_unlock(args->mutex);
+            printf("Job id %d is done\n", args->job->id);
             break;
         }
-        
+
         args->job->timeline[current_time] = '#';
         args->job->time_remaining--;
         
