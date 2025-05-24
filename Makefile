@@ -4,7 +4,7 @@ TARGET = scheduler
 all = scheduler
 
 scheduler.o: scheduler.c scheduler.h
-	gcc -c scheduler.c
+	gcc -c -lpthread scheduler.c
 
 main.o: main.c scheduler.h 
 	gcc -c main.c

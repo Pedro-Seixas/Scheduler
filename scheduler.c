@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
 
 // Compare function for qsort
 int comp(const void* a, const void* b){
@@ -65,21 +66,9 @@ int is_queue_full(Queue* q){
     }
 }
 
-void check_job_state(Queue* q, Job* jobs, int quantity, int current_time){
-    for(int i = 0; i < quantity; i++){
-        if(jobs[i].arrival_time <= current_time){
-            jobs[i].state = READY;
-            enqueue(q, &jobs[i]);
-        }
-        if(jobs[i].burst_time == 0){
-            jobs[i].state = DONE;
-        }
-    }
-}
-
 // First in first out scheduling
 // It receives the jobs, then sort them by arrival time
-void run_fifo(Queue* q, Job* jobs, int quantity){
+void run_fifo(Queue* q, Job* jobs, int quantity, pthread_t threads){
     // Quick Sort
     qsort(jobs, quantity, sizeof(Job), comp);
 
@@ -116,7 +105,7 @@ void run_fifo(Queue* q, Job* jobs, int quantity){
     }
 }
 
-void run_sjf(Queue* q, Job* jobs, int quantity){
+void run_sjf(Queue* q, Job* jobs, int quantity, pthread_t  threads){
     int current_time = 0;
     int jobs_done = 0;
     //qsort(jobs, quantity, sizeof(Job), comp_sjf);
@@ -135,7 +124,7 @@ void run_sjf(Queue* q, Job* jobs, int quantity){
 
         if(current_job){
 
-            run_job(current_job, jobs, quantity, current_time);
+            // run_job(current_job, jobs, quantity, current_time);
 
             // Mark it as done
             if(current_job->time_remaining <= 0 && current_job->state != DONE){
@@ -151,10 +140,20 @@ void run_sjf(Queue* q, Job* jobs, int quantity){
 void run_priority(Queue* q, Job* jobs, int quantity){
     int current_time = 0;
     int jobs_done = 0;
-    //qsort(jobs, quantity, sizeof(Job), comp_sjf);
+    int iret[quantity];
+    ThreadArgs* args;
+    pthread_t threads[quantity];
+    
+    // Create threads
+    for(int i = 0; i < quantity; i++){
+        args->job = &jobs[i];
+        args->current_time = &current_time;
+        iret[i] = pthread_create(&threads[i], NULL, run_job, (void*) args);
+    }
     
     while(jobs_done != quantity){
         Job* current_job = NULL;
+        jobs_done = 0;
         
         // Select the highest priority job
         for(int i = 0; i < quantity; i++){
@@ -166,13 +165,13 @@ void run_priority(Queue* q, Job* jobs, int quantity){
         }
 
         if(current_job){
-            
-            run_job(current_job, jobs, quantity, current_time);
+            current_job->state = RUNNING;
+        }
 
-            // Mark it as done
-            if(current_job->time_remaining <= 0 && current_job->state != DONE){
-                current_job->state = DONE;
-                jobs_done++;   
+        // Check if all jobs are done
+        for(int i = 0; i < quantity; i++){
+            if(jobs[i].state == DONE){
+                jobs_done++;
             }
         }
 
@@ -180,7 +179,7 @@ void run_priority(Queue* q, Job* jobs, int quantity){
     }
 }
 
-void run_rr(Queue* q, Job* jobs, int quantity){
+void run_rr(Queue* q, Job* jobs, int quantity, pthread_t threads){
     int current_time = 0;
     int jobs_done = 0;
     int job_index = -1;
@@ -200,7 +199,7 @@ void run_rr(Queue* q, Job* jobs, int quantity){
         
         if(current_job){
 
-            run_job(current_job, jobs, quantity, current_time);
+           // run_job(current_job, jobs, quantity, current_time);
             
             // Mark it as done
             if(current_job->time_remaining <= 0 && current_job->state != DONE){
@@ -212,19 +211,28 @@ void run_rr(Queue* q, Job* jobs, int quantity){
     }
 }
 
-void run_job(Job* current_job, Job* jobs, int quantity, int current_time){
-    // Running job
-    current_job->timeline[current_time] = '#';
-    current_job->time_remaining--;         
-    
-    // Idle or done jobs
-    for(int i = 0; i < quantity; i++){
-        if(&jobs[i] != current_job){
-           if(jobs[i].arrival_time > current_time || jobs[i].state == DONE){
-               jobs[i].timeline[current_time] = ' ';    
-           }else{
-               jobs[i].timeline[current_time] = '_';
-           }
+void* run_job(void *arg){
+
+    ThreadArgs* args = (ThreadArgs*) arg;
+    int current_time = *(args->current_time);
+
+    while(args->job->state != DONE){
+        // Running job
+        if(args->job->state == RUNNING){
+            args->job->timeline[current_time] = '#';
+            args->job->state = WAITING;
+            args->job->time_remaining--;
+        }else if(args->job->state == WAITING){
+            args->job->timeline[current_time] = '_';
+        }else if(args->job->state == IDLE){
+            args->job->timeline[current_time] = ' ';
         }
+
+        if(args->job->time_remaining <= 0){
+            args->job->state = DONE;
+
+        }
+        printf("Job id %d has %d left\n", args->job->id, args->job->time_remaining);
+
     }
 }

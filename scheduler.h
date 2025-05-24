@@ -1,9 +1,11 @@
 #ifndef SCHEDULER_H
 #define SCHEDULER_H
 #define MAX_JOBS 100
-#define READY    1
-#define DONE     2
-
+#define IDLE     0
+#define RUNNING  1
+#define WAITING  2
+#define DONE     3
+#include <pthread.h>
 typedef struct 
 {
     int id;
@@ -24,6 +26,12 @@ typedef struct
     int size;
 } Queue;
 
+typedef struct
+{
+    Job* job;
+    int* current_time;
+} ThreadArgs;
+
 void init_queue(Queue* q);
 void enqueue(Queue* q, Job* job);
 Job* dequeue(Queue* q);
@@ -31,10 +39,9 @@ int is_queue_full(Queue* q);
 int is_queue_empty(Queue* q);
 void print_queue(Queue* q);
 void append_string(char* s, const char* to_append);
-void check_job_state(Queue* q, Job* jobs, int quantity, int current_time);
-void run_fifo(Queue* q, Job* jobs, int quantity);
-void run_sjf(Queue* q, Job* jobs, int quantity);
+void run_fifo(Queue* q, Job* jobs, int quantity, pthread_t threads);
+void run_sjf(Queue* q, Job* jobs, int quantity, pthread_t threads);
 void run_priority(Queue* q, Job* jobs, int quantity);
-void run_rr(Queue* q, Job* jobs, int quantity);
-void run_job(Job* current_job, Job* jobs, int quantity, int current_time);
+void run_rr(Queue* q, Job* jobs, int quantity, pthread_t threads);
+void *run_job(void *arg);
 #endif

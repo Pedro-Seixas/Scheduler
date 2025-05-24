@@ -1,7 +1,7 @@
 #include "scheduler.h"
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <pthread.h>
 #define NUMBER_OF_JOBS 4
 
 // Main function
@@ -22,9 +22,9 @@ int main()
     // Run scheduler
     // run_fifo(&queue, jobs, NUMBER_OF_JOBS); 
     // run_sjf(&queue, jobs, NUMBER_OF_JOBS);
-    // run_priority(&queue, jobs, NUMBER_OF_JOBS);
+    run_priority(&queue, jobs, NUMBER_OF_JOBS);
     
-    run_rr(&queue, jobs, NUMBER_OF_JOBS);
+    // run_rr(&queue, jobs, NUMBER_OF_JOBS);
     
     // Print timelines
     for(int i = 0; i < NUMBER_OF_JOBS; i++){
