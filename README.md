@@ -12,6 +12,10 @@ make scheduler
 ```
 
 ## Example with Priority Scheduler and Threads
+"#" = Running
+"_" = Waiting
+" " = Idle (not ready/arrived)
+
 ![image](https://github.com/user-attachments/assets/8e923a66-e908-4b06-b935-8ce3b4126f5e)
 
 ## Future work: Implement all the states using queues
