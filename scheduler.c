@@ -163,7 +163,6 @@ void run_priority(Queue* q, Job* jobs, int quantity){
 
     while(jobs_done != quantity){
         pthread_mutex_lock(&mutex);
-        int selected_job = 0;
 
         Job* current_job = NULL;
         jobs_done = 0;
@@ -184,31 +183,37 @@ void run_priority(Queue* q, Job* jobs, int quantity){
             }
         }
 
+        // Run selected job, others wait and add "_" to the timeline
         for(int i = 0; i < quantity; i++){
             if(current_job == &jobs[i] && jobs[i].state != DONE){
                 jobs[i].state = RUNNING;
-                selected_job = i;
             }else if(jobs[i].state != DONE){
                 jobs[i].state = WAITING;
                 jobs[i].timeline[current_time] = '_';
             }
         }
+         
+        if(current_job != NULL){
+            // Signal Job to run
+            pthread_cond_signal(&cond[current_job->id]);
+            pthread_mutex_unlock(&mutex);
 
-        printf("Job selected by scheduler id: %d", current_job->id);
-        
-        // Signal Threds
-        pthread_cond_signal(&cond[selected_job]);
-        pthread_mutex_unlock(&mutex);
-        usleep(2000);
+            usleep(2000);
 
-        while(!current_job->ran_this_cycle);
+            // Wait for thread to run
+            while(!current_job->ran_this_cycle);
 
-        pthread_mutex_lock(&mutex);
-        current_time++;
-        current_job->ran_this_cycle = 0;
-        pthread_mutex_unlock(&mutex);
+            pthread_mutex_lock(&mutex);
+         
+            // Advance time
+            current_time++;
+            current_job->ran_this_cycle = 0;
+
+            pthread_mutex_unlock(&mutex);
+        }
     }
 
+    // End jobs
     for(int i = 0; i < quantity; i++){
         pthread_join(threads[i], NULL);
     }
@@ -252,28 +257,27 @@ void* run_job(void *arg){
     while(1){
         pthread_mutex_lock(args->mutex);
         
+        // Wait until job is selected
         while(args->job->state != RUNNING && args->job->state != DONE){
             pthread_cond_wait(args->cond, args->mutex);
         }
-
-        if(args->job->state == DONE){
-             pthread_mutex_unlock(args->mutex);
-             break;
-        }
         
+        // Run job
         if(args->job->ran_this_cycle == 0){
             args->job->timeline[*args->current_time] = '#';
             args->job->time_remaining--;
-            args->job->ran_this_cycle = 1;
-            printf("Job id %d running at time %d\n", args->job->id, *args->current_time);
-         
         }
-           
+
+        args->job->ran_this_cycle = 1;
+        
+        // Mark it as done
         if(args->job->time_remaining <= 0){
             args->job->state = DONE;
+            pthread_mutex_unlock(args->mutex);
+            break;
         }
 
         pthread_mutex_unlock(args->mutex);
-        usleep(200000);
+        usleep(2000);
     }
 }
