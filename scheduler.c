@@ -143,10 +143,10 @@ void run_priority(Queue* q, Job* jobs, int quantity){
     pthread_cond_t cond[quantity];
     pthread_mutex_t mutex;
     
-
     for(int i = 0; i < quantity; i++){
         pthread_cond_init(&cond[i], NULL);
     }
+
     pthread_mutex_init(&mutex, NULL);
 
     ThreadArgs args[quantity];
