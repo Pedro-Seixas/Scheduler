@@ -4,9 +4,6 @@
 #include <string.h>
 #include <pthread.h>
 
-pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_cond_t cond = PTHREAD_COND_INITIALIZER;
-
 // Compare function for qsort
 int comp(const void* a, const void* b){
     Job* job_A = (Job *) a;
@@ -143,7 +140,14 @@ void run_sjf(Queue* q, Job* jobs, int quantity, pthread_t  threads){
 void run_priority(Queue* q, Job* jobs, int quantity){
     int current_time = 0;
     int jobs_done = 0;
-    int iret[quantity];
+    pthread_cond_t cond[quantity];
+    pthread_mutex_t mutex;
+    
+
+    for(int i = 0; i < quantity; i++){
+        pthread_cond_init(&cond[i], NULL);
+    }
+    pthread_mutex_init(&mutex, NULL);
 
     ThreadArgs args[quantity];
     pthread_t threads[quantity];
@@ -153,16 +157,17 @@ void run_priority(Queue* q, Job* jobs, int quantity){
         args[i].job = &jobs[i];
         args[i].current_time = &current_time;
         args[i].mutex = &mutex;
-        args[i].cond = &cond;
+        args[i].cond = &cond[i];
         pthread_create(&threads[i], NULL, run_job, (void*)& args[i]);
     }
 
     while(jobs_done != quantity){
         pthread_mutex_lock(&mutex);
+        int selected_job = 0;
 
         Job* current_job = NULL;
         jobs_done = 0;
-        
+
         // Check if all jobs are done
         for(int i = 0; i < quantity; i++){
             if(jobs[i].state == DONE){
@@ -182,19 +187,20 @@ void run_priority(Queue* q, Job* jobs, int quantity){
         for(int i = 0; i < quantity; i++){
             if(current_job == &jobs[i] && jobs[i].state != DONE){
                 jobs[i].state = RUNNING;
+                selected_job = i;
             }else if(jobs[i].state != DONE){
                 jobs[i].state = WAITING;
+                jobs[i].timeline[current_time] = '_';
             }
         }
 
-        // printf("Job selected by scheduler id: %d", current_job->id);
+        printf("Job selected by scheduler id: %d", current_job->id);
         
-        // Signal Thredas
-        pthread_cond_broadcast(&cond);
-        pthread_mutex_unlock(&mutex);
-       
-        usleep(20000);
+        // Signal Threds
         current_time++;
+        pthread_mutex_unlock(&mutex);
+        pthread_cond_signal(&cond[selected_job]);
+        usleep(20000);
     }
 
     for(int i = 0; i < quantity; i++){
@@ -238,17 +244,12 @@ void* run_job(void *arg){
     ThreadArgs* args = (ThreadArgs*) arg;
 
     while(1){
+        pthread_cond_wait(args->cond, args->mutex);
         pthread_mutex_lock(args->mutex);
 
-        while(args->job->state != RUNNING && args->job->state != DONE){
-            args->job->timeline[*args->current_time] = '_';
-            printf("Job id %d waiting at time %d \n", args->job->id, *args->current_time);
-            pthread_cond_wait(args->cond, args->mutex);
-        }
-       
         if(args->job->state == DONE){
              pthread_mutex_unlock(args->mutex);
-            break;
+             break;
         }
 
         args->job->timeline[*args->current_time] = '#';
@@ -260,6 +261,5 @@ void* run_job(void *arg){
         }
 
         pthread_mutex_unlock(args->mutex);
-        usleep(21000);
     }
 }
