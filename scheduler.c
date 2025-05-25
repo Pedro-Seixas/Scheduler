@@ -197,10 +197,16 @@ void run_priority(Queue* q, Job* jobs, int quantity){
         printf("Job selected by scheduler id: %d", current_job->id);
         
         // Signal Threds
-        current_time++;
-        pthread_mutex_unlock(&mutex);
         pthread_cond_signal(&cond[selected_job]);
-        usleep(20000);
+        pthread_mutex_unlock(&mutex);
+        usleep(2000);
+
+        while(!current_job->ran_this_cycle);
+
+        pthread_mutex_lock(&mutex);
+        current_time++;
+        current_job->ran_this_cycle = 0;
+        pthread_mutex_unlock(&mutex);
     }
 
     for(int i = 0; i < quantity; i++){
@@ -244,22 +250,30 @@ void* run_job(void *arg){
     ThreadArgs* args = (ThreadArgs*) arg;
 
     while(1){
-        pthread_cond_wait(args->cond, args->mutex);
         pthread_mutex_lock(args->mutex);
+        
+        while(args->job->state != RUNNING && args->job->state != DONE){
+            pthread_cond_wait(args->cond, args->mutex);
+        }
 
         if(args->job->state == DONE){
              pthread_mutex_unlock(args->mutex);
              break;
         }
-
-        args->job->timeline[*args->current_time] = '#';
-        args->job->time_remaining--;
-        printf("Job id %d running at time %d\n", args->job->id, *args->current_time);
-            
+        
+        if(args->job->ran_this_cycle == 0){
+            args->job->timeline[*args->current_time] = '#';
+            args->job->time_remaining--;
+            args->job->ran_this_cycle = 1;
+            printf("Job id %d running at time %d\n", args->job->id, *args->current_time);
+         
+        }
+           
         if(args->job->time_remaining <= 0){
             args->job->state = DONE;
         }
 
         pthread_mutex_unlock(args->mutex);
+        usleep(200000);
     }
 }

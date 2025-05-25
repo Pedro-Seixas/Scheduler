@@ -16,6 +16,7 @@ typedef struct
     int priority;
     char timeline[100];
     int state;
+    int ran_this_cycle;
 } Job;
 
 // Create a Queue data structure
