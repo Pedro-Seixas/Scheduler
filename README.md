@@ -1,7 +1,7 @@
 # Scheduler
 This project is a program that simulates different job scheduling algorithms. 
 
-Current job scheduling algorithms implemented are First Come First Serve (FCFS or FIFO), Short Job First Preemptive (SJF), Priority Scheduling, and Round Robin.
+Current job scheduling algorithms implemented are First Come First Serve (FCFS or FIFO), Short Job First Preemptive (SJF), Priority Scheduling Preemptive, and Round Robin.
 
 I have implemented a queue data structure but it has not been used yet, future work is to implement a ready queue to better simulate the different states of tasks, because currently I am using only arrays.
 
