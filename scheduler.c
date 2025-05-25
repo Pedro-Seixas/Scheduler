@@ -177,9 +177,12 @@ void run_priority(Queue* q, Job* jobs, int quantity){
         // Select the highest priority job
         for(int i = 0; i < quantity; i++){
             if(jobs[i].arrival_time <= current_time && jobs[i].state != DONE){
+                jobs[i].state = WAITING;
                 if(current_job == NULL || jobs[i].priority > current_job->priority){
                     current_job = &jobs[i];
                 }
+            }else if(jobs[i].state != DONE){
+                jobs[i].state = IDLE;
             }
         }
 
@@ -187,9 +190,10 @@ void run_priority(Queue* q, Job* jobs, int quantity){
         for(int i = 0; i < quantity; i++){
             if(current_job == &jobs[i] && jobs[i].state != DONE){
                 jobs[i].state = RUNNING;
-            }else if(jobs[i].state != DONE){
-                jobs[i].state = WAITING;
+            }else if(jobs[i].state == WAITING){
                 jobs[i].timeline[current_time] = '_';
+            }else{
+                jobs[i].timeline[current_time] = ' ';
             }
         }
          
