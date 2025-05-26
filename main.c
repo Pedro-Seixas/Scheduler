@@ -9,10 +9,10 @@ int main()
 {    
     // {id, arrival_time, burst_time, time_remaining, priority, timeline, state}
     Job jobs[NUMBER_OF_JOBS] = {
-        {0, 1, 7, 7, 2, "", 0, 0},
+        {0, 3, 7, 7, 2, "", 0, 0},
         {1, 2, 3, 3, 3, "", 0, 0},
-        {2, 4, 6, 6, 1, "", 0, 0},
-        {3, 0, 4, 4, 0, "", 0, 0}
+        {2, 1, 6, 6, 1, "", 0, 0},
+        {3, 1, 4, 4, 0, "", 0, 0}
     };
 
     for(int i = 0; i < NUMBER_OF_JOBS; i++){
@@ -23,9 +23,9 @@ int main()
     printf("\nRunning Priority Scheduling...\n\n");
     
     // Run scheduler
-    // run_fifo(&queue, jobs, NUMBER_OF_JOBS); 
-    // run_sjf(&queue, jobs, NUMBER_OF_JOBS);
-    int end_time = run_priority(jobs, NUMBER_OF_JOBS);
+    // run_fifo(jobs, NUMBER_OF_JOBS); 
+    int end_time = run_sjf(jobs, NUMBER_OF_JOBS);
+    // int end_time = run_priority(jobs, NUMBER_OF_JOBS);
     
     // run_rr(&queue, jobs, NUMBER_OF_JOBS);
     

@@ -39,7 +39,7 @@ typedef struct
 } ThreadArgs;
 
 void run_fifo(Job* jobs, int quantity, pthread_t threads);
-void run_sjf(Job* jobs, int quantity, pthread_t threads);
+int run_sjf(Job* jobs, int quantity);
 int run_priority(Job* jobs, int quantity);
 void run_rr(Job* jobs, int quantity, pthread_t threads);
 void *process(void *arg);

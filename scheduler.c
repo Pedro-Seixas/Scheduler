@@ -5,6 +5,7 @@
 #include <pthread.h>
 
 Job* select_highest_priority_job(Job* jobs, int quantity, int current_time);
+Job* select_shortest_job(Job* jobs, int quantity, int current_time);
 void update_timeline(Job* current_job, Job* jobs, int quantity, int current_time);
 void run_job(Job* current_job, int* current_time, pthread_cond_t* cond, pthread_mutex_t* mutex);
 int are_all_jobs_done(Job* jobs, int quantity);
@@ -55,35 +56,55 @@ void run_fifo(Job* jobs, int quantity, pthread_t threads){
     }
 }
 
-void run_sjf(Job* jobs, int quantity, pthread_t  threads){
+int run_sjf(Job* jobs, int quantity){
     int current_time = 0;
-    int jobs_done = 0;
-        
-    while(jobs_done != quantity){
+    int done_flag = 0;
+    
+    pthread_cond_t cond[quantity];
+    pthread_mutex_t mutex;
+    
+    ThreadArgs args[quantity];
+    pthread_t threads[quantity];
+
+    // Init mutex and conditional variable
+    for(int i = 0; i < quantity; i++){
+        pthread_cond_init(&cond[i], NULL);
+    }
+    
+    pthread_mutex_init(&mutex, NULL);
+    
+    // Create threads
+    for(int i = 0; i < quantity; i++){
+        args[i].job = &jobs[i];
+        args[i].current_time = &current_time;
+        args[i].mutex = &mutex;
+        args[i].cond = &cond[i];
+        pthread_create(&threads[i], NULL, process, (void*)& args[i]);
+    }
+
+    while(!done_flag){
+        pthread_mutex_lock(&mutex);
         Job* current_job = NULL;
+       
+        // Check if jobs are done
+        done_flag = are_all_jobs_done(jobs, quantity);
         
         // Select the shortest job
-        for(int i = 0; i < quantity; i++){
-            if(jobs[i].arrival_time <= current_time && jobs[i].state != DONE){
-                if(current_job == NULL || jobs[i].time_remaining < current_job->time_remaining){
-                    current_job = &jobs[i];
-                }
-            }
-        }
+        current_job = select_shortest_job(jobs, quantity, current_time);       
+      
+        // Run selected job, others wait and add "_" to the timeline
+        update_timeline(current_job, jobs, quantity, current_time);
 
-        if(current_job){
-
-            // run_job(current_job, jobs, quantity, current_time);
-
-            // Mark it as done
-            if(current_job->time_remaining <= 0 && current_job->state != DONE){
-                current_job->state = DONE;
-                jobs_done++;   
-            }
-        }
-
-        current_time++;
+        // Run Job
+        run_job(current_job, &current_time, cond, &mutex);
     }
+    
+    // End jobs
+    for(int i = 0; i < quantity; i++){
+        pthread_join(threads[i], NULL);
+    }
+    
+    return current_time;
 }
 
 // Priority Preemptive
@@ -207,6 +228,23 @@ void* process(void *arg){
  *Helper functions
  * 
 */
+
+Job* select_shortest_job(Job* jobs, int quantity, int current_time){
+    Job* current_job = NULL;
+
+    for(int i = 0; i < quantity; i++){
+        if(jobs[i].arrival_time <= current_time && jobs[i].state != DONE){
+            jobs[i].state = WAITING;
+            if(current_job == NULL || jobs[i].time_remaining < current_job->time_remaining){
+                current_job = &jobs[i];
+            }
+        }else if (jobs[i].state != DONE){
+            jobs[i].state = IDLE;
+        }
+    }
+
+    return current_job;
+}
 Job* select_highest_priority_job(Job* jobs, int quantity, int current_time){
     Job* current_job = NULL;
     for(int i = 0; i < quantity; i++){
