@@ -4,6 +4,11 @@
 #include <string.h>
 #include <pthread.h>
 
+Job* select_highest_priority_job(Job* jobs, int quantity, int current_time);
+void update_timeline(Job* current_job, Job* jobs, int quantity, int current_time);
+void run_job(Job* current_job, int* current_time, pthread_cond_t* cond, pthread_mutex_t* mutex);
+int are_all_jobs_done(Job* jobs, int quantity);
+
 // Compare function for qsort
 int comp(const void* a, const void* b){
     Job* job_A = (Job *) a;
@@ -140,90 +145,46 @@ void run_sjf(Queue* q, Job* jobs, int quantity, pthread_t  threads){
 // Priority Preemptive
 int run_priority(Queue* q, Job* jobs, int quantity){
     int current_time = 0;
-    int jobs_done = 0;
+    int done_flag  = 0;
+
     pthread_cond_t cond[quantity];
     pthread_mutex_t mutex;
     
-    for(int i = 0; i < quantity; i++){
-        pthread_cond_init(&cond[i], NULL);
-    }
-
-    pthread_mutex_init(&mutex, NULL);
-
     ThreadArgs args[quantity];
     pthread_t threads[quantity];
 
+    // Init mutex and conditional variable
+    for(int i = 0; i < quantity; i++){
+        pthread_cond_init(&cond[i], NULL);
+    }
+    pthread_mutex_init(&mutex, NULL);
+    
     // Create threads
     for(int i = 0; i < quantity; i++){
         args[i].job = &jobs[i];
         args[i].current_time = &current_time;
         args[i].mutex = &mutex;
         args[i].cond = &cond[i];
-        pthread_create(&threads[i], NULL, run_job, (void*)& args[i]);
+        pthread_create(&threads[i], NULL, process, (void*)& args[i]);
     }
 
-    while(jobs_done != quantity){
+    while(done_flag != 1){
         pthread_mutex_lock(&mutex);
-
         Job* current_job = NULL;
-        jobs_done = 0;
 
         // Check if all jobs are done
-        for(int i = 0; i < quantity; i++){
-            if(jobs[i].state == DONE){
-                jobs_done++;
-            }
-        }
+        done_flag = are_all_jobs_done(jobs, quantity);
 
         // Select the highest priority job
-        for(int i = 0; i < quantity; i++){
-            if(jobs[i].arrival_time <= current_time && jobs[i].state != DONE){
-                jobs[i].state = WAITING;
-                if(current_job == NULL || jobs[i].priority > current_job->priority){
-                    current_job = &jobs[i];
-                }
-            }else if(jobs[i].state != DONE){
-                jobs[i].state = IDLE;
-            }
-        }
+        current_job = select_highest_priority_job(jobs, quantity, current_time);
 
         // Run selected job, others wait and add "_" to the timeline
-        for(int i = 0; i < quantity; i++){
-            if(current_job == &jobs[i] && jobs[i].state != DONE){
-                jobs[i].state = RUNNING;
-                
-                // Get Response time
-                if(jobs[i].was_response_time_measured == 0){
-                    jobs[i].response_time = current_time;
-                    jobs[i].was_response_time_measured = 1;
-                }
-
-            }else if(jobs[i].state == WAITING){
-                jobs[i].time_waited++;
-                jobs[i].timeline[current_time] = '_';
-            }else{
-                jobs[i].timeline[current_time] = ' ';
-            }
-        }
-         
-        if(current_job != NULL){
-            // Signal Job to run
-            pthread_cond_signal(&cond[current_job->id]);
-            pthread_mutex_unlock(&mutex);
-
-            // Wait for thread to run
-            while(!current_job->ran_this_cycle);
-
-            pthread_mutex_lock(&mutex);
-         
-            // Advance time
-            current_time++;
-            current_job->ran_this_cycle = 0;
-
-            pthread_mutex_unlock(&mutex);
-        }
+        update_timeline(current_job, jobs, quantity, current_time);
+       
+        // Run Thread/Job
+        run_job(current_job, &current_time, cond, &mutex); 
     }
-
+    
     // End jobs
     for(int i = 0; i < quantity; i++){
         pthread_join(threads[i], NULL);
@@ -265,7 +226,7 @@ void run_rr(Queue* q, Job* jobs, int quantity, pthread_t threads){
 }
 
 // Thread Function
-void* run_job(void *arg){
+void* process(void *arg){
 
     ThreadArgs* args = (ThreadArgs*) arg;
 
@@ -297,3 +258,72 @@ void* run_job(void *arg){
         usleep(2000);
     }
 }
+
+/*
+ *Helper functions
+ * 
+*/
+Job* select_highest_priority_job(Job* jobs, int quantity, int current_time){
+    Job* current_job = NULL;
+    for(int i = 0; i < quantity; i++){
+        if(jobs[i].arrival_time <= current_time && jobs[i].state != DONE){
+            jobs[i].state = WAITING;
+
+            if(current_job == NULL || jobs[i].priority > current_job->priority){
+                current_job = &jobs[i];
+            }
+        }else if(jobs[i].state != DONE){
+               jobs[i].state = IDLE;
+        }
+    }
+    return current_job;
+}
+
+void update_timeline(Job* current_job, Job* jobs, int quantity, int current_time){
+    for(int i = 0; i < quantity; i++){
+        if(current_job == &jobs[i] && jobs[i].state != DONE){
+            jobs[i].state = RUNNING;    
+            // Get Response time
+            if(jobs[i].was_response_time_measured == 0){
+                jobs[i].response_time = current_time;
+                jobs[i].was_response_time_measured = 1;
+            }
+        }else if(jobs[i].state == WAITING){
+            jobs[i].time_waited++;
+            jobs[i].timeline[current_time] = '_';
+        }else{
+            jobs[i].timeline[current_time] = ' ';
+        }
+    }
+}
+
+void run_job(Job* current_job, int* current_time, pthread_cond_t* cond, pthread_mutex_t* mutex){
+    if(current_job != NULL){
+        // Signal Job to run
+        pthread_cond_signal(&cond[current_job->id]);
+        pthread_mutex_unlock(mutex);
+        
+        // Wait for thread to run
+        while(!current_job->ran_this_cycle);
+
+        pthread_mutex_lock(mutex);
+         
+        // Advance time
+        (*current_time)++;
+
+        current_job->ran_this_cycle = 0;
+
+        pthread_mutex_unlock(mutex);
+        }
+}
+
+int are_all_jobs_done(Job* jobs, int quantity){
+    int jobs_done = 0;
+    for(int i = 0; i < quantity; i++){
+        if(jobs[i].state == DONE){
+            jobs_done++;
+        }
+    }
+    return jobs_done == quantity;
+}
+

@@ -1,11 +1,17 @@
 #ifndef SCHEDULER_H
 #define SCHEDULER_H
+
+#include <pthread.h>
+
 #define MAX_JOBS 100
 #define IDLE     0
 #define RUNNING  1
 #define WAITING  2
 #define DONE     3
-#include <pthread.h>
+
+#define RED     "\e[1;31m"
+#define GREEN   "\e[1;32m"
+#define RESET   "\e[0m"
 
 typedef struct 
 {
@@ -51,5 +57,5 @@ void run_fifo(Queue* q, Job* jobs, int quantity, pthread_t threads);
 void run_sjf(Queue* q, Job* jobs, int quantity, pthread_t threads);
 int run_priority(Queue* q, Job* jobs, int quantity);
 void run_rr(Queue* q, Job* jobs, int quantity, pthread_t threads);
-void *run_job(void *arg);
+void *process(void *arg);
 #endif
