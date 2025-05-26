@@ -138,7 +138,7 @@ int run_priority(Job* jobs, int quantity){
         pthread_create(&threads[i], NULL, process, (void*)& args[i]);
     }
 
-    while(done_flag != 1){
+    while(!done_flag){
         pthread_mutex_lock(&mutex);
         Job* current_job = NULL;
 
@@ -157,8 +157,7 @@ int run_priority(Job* jobs, int quantity){
         }else{
             current_time++;
             pthread_mutex_unlock(&mutex);
-        }
-        
+        }    
     }
     
     // End jobs
@@ -170,35 +169,90 @@ int run_priority(Job* jobs, int quantity){
 }
 
 // Round Robin
-void run_rr(Job* jobs, int quantity, pthread_t threads){
+int run_rr(Job* jobs, int quantity){
     int current_time = 0;
-    int jobs_done = 0;
+    int done_flag  = 0;
     int job_index = -1;
+
+    // This flag ensures the scheduler does not enter in a loop
+    // Checking for jobs without progressing time
+    int number_of_jobs_not_arrived = 0;
+
+    pthread_cond_t cond[quantity];
+    pthread_mutex_t mutex;
     
-    while(jobs_done != quantity){
+    ThreadArgs args[quantity];
+    pthread_t threads[quantity];
+
+    // Init mutex and conditional variable
+    for(int i = 0; i < quantity; i++){
+        pthread_cond_init(&cond[i], NULL);
+    }
+    pthread_mutex_init(&mutex, NULL);
+    
+    // Create threads
+    for(int i = 0; i < quantity; i++){
+        args[i].job = &jobs[i];
+        args[i].current_time = &current_time;
+        args[i].mutex = &mutex;
+        args[i].cond = &cond[i];
+        pthread_create(&threads[i], NULL, process, (void*)& args[i]);
+    }
+
+    while(!done_flag){
+        pthread_mutex_lock(&mutex);
         Job* current_job = NULL;
+               
+        // Check if all jobs are done
+        done_flag = are_all_jobs_done(jobs, quantity);
+
         // Select next job
         job_index = (job_index + 1) % quantity;
-        
-        // See if next job is ready
+
+        // Select next job if ready
         if(jobs[job_index].arrival_time <= current_time && jobs[job_index].state != DONE){
             current_job = &jobs[job_index];
         }else{
+            if(number_of_jobs_not_arrived == quantity){
+                current_time++;
+                number_of_jobs_not_arrived = 0;
+                job_index = -1;
+            }else{
+                number_of_jobs_not_arrived++;
+            }
+
+            pthread_mutex_unlock(&mutex);
             continue;
         }
         
-        if(current_job){
-
-           // run_job(current_job, jobs, quantity, current_time);
-            
-            // Mark it as done
-            if(current_job->time_remaining <= 0 && current_job->state != DONE){
-                current_job->state = DONE;
-                jobs_done++;   
-            }
+        for(int i = 0; i < quantity; i++){
+            if(&jobs[i] != current_job && jobs[i].arrival_time <= current_time && jobs[i].state != DONE ){
+                jobs[i].state = WAITING;
+            }else if(&jobs[i] != current_job && jobs[i].state != DONE){
+                jobs[i].state = IDLE;
+            } 
         }
-        current_time++;
+        
+        // Update timeline
+        update_timeline(current_job, jobs, quantity, current_time);
+        
+        printf("Selected %d\n", current_job->id);
+        
+        if(current_job){
+            run_job(current_job, &current_time, cond, &mutex);
+            printf("Entered here?\n");
+        }else{
+            current_time++;
+            pthread_mutex_unlock(&mutex);
+        }
     }
+    
+    // End jobs
+    for(int i = 0; i < quantity; i++){
+        pthread_join(threads[i], NULL);
+    }
+    
+    return current_time;
 }
 
 // Thread Function
@@ -225,6 +279,7 @@ void* process(void *arg){
         // Mark it as done
         if(args->job->time_remaining <= 0){
             args->job->state = DONE;
+            printf("Job %d DONE\n", args->job->id);
             args->job->time_completed = *args->current_time;
             pthread_mutex_unlock(args->mutex);
             break;
@@ -277,6 +332,7 @@ void update_timeline(Job* current_job, Job* jobs, int quantity, int current_time
     for(int i = 0; i < quantity; i++){
         if(current_job == &jobs[i] && jobs[i].state != DONE){
             jobs[i].state = RUNNING;    
+            
             // Get Response time
             if(jobs[i].was_response_time_measured == 0){
                 jobs[i].response_time = current_time;
@@ -308,7 +364,7 @@ void run_job(Job* current_job, int* current_time, pthread_cond_t* cond, pthread_
         current_job->ran_this_cycle = 0;
 
         pthread_mutex_unlock(mutex);
-        }
+    }
 }
 
 int are_all_jobs_done(Job* jobs, int quantity){
