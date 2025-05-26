@@ -20,7 +20,7 @@ make scheduler
 
 " " = Idle (not ready/arrived)
 
-![image](https://github.com/user-attachments/assets/13cb49ff-ee92-4e42-8732-9a812344285d)
+![image](https://github.com/user-attachments/assets/eb606d34-72ad-482a-b7c8-ff2652699869)
 
 ## Future work: Implement all the states using queues
 ![image](https://github.com/user-attachments/assets/147399d2-f6c6-4f5d-bf1d-4541ccbe5113)
@@ -29,5 +29,5 @@ make scheduler
 - Use pthreads to better simulate tasks [DONE]
 - Add a Demo Screenshot to the README [DONE]
 - Display throughput, wait time, response time, and turn-around time [Done]
-- Add colors
+- Add colors [DONE]
 - Implement states and queues (maybe, I have other projects and certifications to work on)
