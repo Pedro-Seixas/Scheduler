@@ -7,10 +7,6 @@
 // Main function
 int main()
 {    
-    // Initialize the main queue
-    Queue queue;
-    init_queue(&queue);
-
     // {id, arrival_time, burst_time, time_remaining, priority, timeline, state}
     Job jobs[NUMBER_OF_JOBS] = {
         {0, 1, 7, 7, 2, "", 0, 0},
@@ -29,7 +25,7 @@ int main()
     // Run scheduler
     // run_fifo(&queue, jobs, NUMBER_OF_JOBS); 
     // run_sjf(&queue, jobs, NUMBER_OF_JOBS);
-    int end_time = run_priority(&queue, jobs, NUMBER_OF_JOBS);
+    int end_time = run_priority(jobs, NUMBER_OF_JOBS);
     
     // run_rr(&queue, jobs, NUMBER_OF_JOBS);
     

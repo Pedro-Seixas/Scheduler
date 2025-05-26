@@ -16,64 +16,9 @@ int comp(const void* a, const void* b){
     return job_A->arrival_time - job_B->arrival_time;
 }
 
-int comp_sjf(const void* a, const void* b){
-    Job* job_A = (Job *) a;
-    Job* job_B = (Job *) b;
-    return job_A->time_remaining - job_B->time_remaining;
-}
-
-void print_queue(Queue* q){
-    for(int i = q->front; i < q->rear + 1; i++){
-        Job* job_temp = dequeue(q);
-        printf("%s\n", job_temp->timeline);
-    }
-}
-void init_queue(Queue* q){
-    q->rear = -1;
-    q->front = 0;
-    q->size = 0;
-}
-
-void enqueue(Queue* q, Job* job){
-    if(is_queue_full(q)){
-        printf("Queue Full\n");
-        return;
-    }
-    q->jobs[++q->rear] = job;
-    q->size++;
-}
-
-Job* dequeue(Queue* q){
-    if(is_queue_empty(q)){
-        printf("Queue Empty\n");
-        return;
-    }
-
-    Job* job_temp = q->jobs[q->front++];
-    q->size--;
-
-    return job_temp;
-}
-
-int is_queue_empty(Queue* q){
-    if(q->size < 0){
-        return 1;
-    }else{
-        return 0;
-    }
-}
-
-int is_queue_full(Queue* q){
-    if(q->size == MAX_JOBS){
-        return 1;
-    }else{
-        return 0;
-    }
-}
-
 // First in first out scheduling
 // It receives the jobs, then sort them by arrival time
-void run_fifo(Queue* q, Job* jobs, int quantity, pthread_t threads){
+void run_fifo(Job* jobs, int quantity, pthread_t threads){
     // Quick Sort
     qsort(jobs, quantity, sizeof(Job), comp);
 
@@ -110,11 +55,10 @@ void run_fifo(Queue* q, Job* jobs, int quantity, pthread_t threads){
     }
 }
 
-void run_sjf(Queue* q, Job* jobs, int quantity, pthread_t  threads){
+void run_sjf(Job* jobs, int quantity, pthread_t  threads){
     int current_time = 0;
     int jobs_done = 0;
-    //qsort(jobs, quantity, sizeof(Job), comp_sjf);
-    
+        
     while(jobs_done != quantity){
         Job* current_job = NULL;
         
@@ -143,7 +87,7 @@ void run_sjf(Queue* q, Job* jobs, int quantity, pthread_t  threads){
 }
 
 // Priority Preemptive
-int run_priority(Queue* q, Job* jobs, int quantity){
+int run_priority(Job* jobs, int quantity){
     int current_time = 0;
     int done_flag  = 0;
 
@@ -194,7 +138,7 @@ int run_priority(Queue* q, Job* jobs, int quantity){
 }
 
 // Round Robin
-void run_rr(Queue* q, Job* jobs, int quantity, pthread_t threads){
+void run_rr(Job* jobs, int quantity, pthread_t threads){
     int current_time = 0;
     int jobs_done = 0;
     int job_index = -1;

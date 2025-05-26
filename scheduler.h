@@ -30,15 +30,6 @@ typedef struct
     int time_waited;
 } Job;
 
-// Create a Queue data structure
-typedef struct
-{
-    Job* jobs[MAX_JOBS];
-    int rear;
-    int front;
-    int size;
-} Queue;
-
 typedef struct
 {
     Job* job;
@@ -47,16 +38,9 @@ typedef struct
     pthread_cond_t* cond;
 } ThreadArgs;
 
-void init_queue(Queue* q);
-void enqueue(Queue* q, Job* job);
-Job* dequeue(Queue* q);
-int is_queue_full(Queue* q);
-int is_queue_empty(Queue* q);
-void print_queue(Queue* q);
-void append_string(char* s, const char* to_append);
-void run_fifo(Queue* q, Job* jobs, int quantity, pthread_t threads);
-void run_sjf(Queue* q, Job* jobs, int quantity, pthread_t threads);
-int run_priority(Queue* q, Job* jobs, int quantity);
-void run_rr(Queue* q, Job* jobs, int quantity, pthread_t threads);
+void run_fifo(Job* jobs, int quantity, pthread_t threads);
+void run_sjf(Job* jobs, int quantity, pthread_t threads);
+int run_priority(Job* jobs, int quantity);
+void run_rr(Job* jobs, int quantity, pthread_t threads);
 void *process(void *arg);
 #endif
