@@ -43,7 +43,7 @@ int main()
 
     // Print timeline
     for(int i = 0; i < NUMBER_OF_JOBS; i++){
-        printf("Job %i: %s | Response Time: %.2d | Time Completed: %2d | Time Waited: %2d | Turnaround Time: %2d |\n", 
+        printf("Job %i: %s | Response Time: %2d | Time Completed: %2d | Time Waited: %2d | Turnaround Time: %2d |\n", 
                 jobs[i].id, jobs[i].timeline , jobs[i].response_time, jobs[i].time_completed,
                 jobs[i].time_waited, jobs[i].time_completed - jobs[i].response_time);
     }
