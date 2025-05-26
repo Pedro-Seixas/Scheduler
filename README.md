@@ -29,5 +29,5 @@ make scheduler
 - Use pthreads to better simulate tasks [DONE]
 - Add a Demo Screenshot to the README [DONE]
 - Display throughput, wait time, response time, and turn-around time [Done]
-- Add colors
+- Add colors [DONE]
 - Implement states and queues (maybe, I have other projects and certifications to work on)
