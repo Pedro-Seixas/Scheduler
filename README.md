@@ -9,6 +9,8 @@ To better simulate a process, I am using threads where I select which thread to 
 
 ## To Run this Program
 Clone the repository and write the following in your terminal:
+
+Since it uses pthreads, this program is unix-only.
 ```
 make scheduler
 ```
