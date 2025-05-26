@@ -9,7 +9,7 @@ int main()
 {    
     // {id, arrival_time, burst_time, time_remaining, priority, timeline, state}
     Job jobs[NUMBER_OF_JOBS] = {
-        {0, 3, 7, 7, 2, "", 0, 0},
+        {0, 1, 7, 7, 2, "", 0, 0},
         {1, 2, 3, 3, 3, "", 0, 0},
         {2, 1, 6, 6, 1, "", 0, 0},
         {3, 1, 4, 4, 0, "", 0, 0}

@@ -90,13 +90,18 @@ int run_sjf(Job* jobs, int quantity){
         done_flag = are_all_jobs_done(jobs, quantity);
         
         // Select the shortest job
-        current_job = select_shortest_job(jobs, quantity, current_time);       
-      
+        current_job = select_shortest_job(jobs, quantity, current_time);
+        
         // Run selected job, others wait and add "_" to the timeline
         update_timeline(current_job, jobs, quantity, current_time);
-
-        // Run Job
-        run_job(current_job, &current_time, cond, &mutex);
+        
+        if(current_job){
+            // Run Job
+            run_job(current_job, &current_time, cond, &mutex);
+        }else{
+            current_time++;
+            pthread_mutex_unlock(&mutex);
+        }
     }
     
     // End jobs
@@ -143,11 +148,17 @@ int run_priority(Job* jobs, int quantity){
         // Select the highest priority job
         current_job = select_highest_priority_job(jobs, quantity, current_time);
 
-        // Run selected job, others wait and add "_" to the timeline
+        // Update the timeline for jobs NOT running
         update_timeline(current_job, jobs, quantity, current_time);
-       
-        // Run Thread/Job
-        run_job(current_job, &current_time, cond, &mutex); 
+            
+        if(current_job){
+            // Run Thread/Job
+            run_job(current_job, &current_time, cond, &mutex); 
+        }else{
+            current_time++;
+            pthread_mutex_unlock(&mutex);
+        }
+        
     }
     
     // End jobs
@@ -235,7 +246,7 @@ Job* select_shortest_job(Job* jobs, int quantity, int current_time){
     for(int i = 0; i < quantity; i++){
         if(jobs[i].arrival_time <= current_time && jobs[i].state != DONE){
             jobs[i].state = WAITING;
-            if(current_job == NULL || jobs[i].time_remaining < current_job->time_remaining){
+            if(current_job == NULL || jobs[i].time_remaining <= current_job->time_remaining){
                 current_job = &jobs[i];
             }
         }else if (jobs[i].state != DONE){
@@ -245,6 +256,7 @@ Job* select_shortest_job(Job* jobs, int quantity, int current_time){
 
     return current_job;
 }
+
 Job* select_highest_priority_job(Job* jobs, int quantity, int current_time){
     Job* current_job = NULL;
     for(int i = 0; i < quantity; i++){
