@@ -9,10 +9,10 @@ int main()
 {    
     // {id, arrival_time, burst_time, time_remaining, priority, timeline, state}
     Job jobs[NUMBER_OF_JOBS] = {
-        {0, 1, 7, 7, 2, "", 0, 0},
-        {1, 1, 3, 3, 3, "", 0, 0},
-        {2, 1, 6, 6, 1, "", 0, 0},
-        {3, 1, 4, 4, 0, "", 0, 0}
+        {0, 0, 7, 7, 2, "", 0, 0},
+        {1, 2, 3, 3, 3, "", 0, 0},
+        {2, 3, 6, 6, 1, "", 0, 0},
+        {3, 4, 4, 4, 0, "", 0, 0}
     };
 
     for(int i = 0; i < NUMBER_OF_JOBS; i++){
@@ -20,7 +20,7 @@ int main()
                 jobs[i].id, jobs[i].arrival_time, jobs[i].burst_time, jobs[i].priority);    
     } 
 
-    printf("\nRunning Priority Scheduling...\n\n");
+    printf("\nRunning Round Robin Scheduling...\n\n");
     
     // Run scheduler
     // run_fifo(jobs, NUMBER_OF_JOBS); 

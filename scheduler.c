@@ -236,11 +236,8 @@ int run_rr(Job* jobs, int quantity){
         // Update timeline
         update_timeline(current_job, jobs, quantity, current_time);
         
-        printf("Selected %d\n", current_job->id);
-        
         if(current_job){
             run_job(current_job, &current_time, cond, &mutex);
-            printf("Entered here?\n");
         }else{
             current_time++;
             pthread_mutex_unlock(&mutex);
@@ -279,7 +276,6 @@ void* process(void *arg){
         // Mark it as done
         if(args->job->time_remaining <= 0){
             args->job->state = DONE;
-            printf("Job %d DONE\n", args->job->id);
             args->job->time_completed = *args->current_time;
             pthread_mutex_unlock(args->mutex);
             break;
@@ -335,7 +331,7 @@ void update_timeline(Job* current_job, Job* jobs, int quantity, int current_time
             
             // Get Response time
             if(jobs[i].was_response_time_measured == 0){
-                jobs[i].response_time = current_time;
+                jobs[i].response_time = current_time - jobs[i].arrival_time;
                 jobs[i].was_response_time_measured = 1;
             }
         }else if(jobs[i].state == WAITING){
