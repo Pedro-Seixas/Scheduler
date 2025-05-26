@@ -11,6 +11,7 @@
 
 #define RED     "\e[1;31m"
 #define GREEN   "\e[1;32m"
+#define CYAN    "\e[1;36m"
 #define RESET   "\e[0m"
 
 typedef struct 

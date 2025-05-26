@@ -33,8 +33,9 @@ int main()
     
     // run_rr(&queue, jobs, NUMBER_OF_JOBS);
     
-    printf("Job ended after %d time units\n", end_time);
-    printf("Throughput = %.2f\n", (float)NUMBER_OF_JOBS / end_time);
+    printf(CYAN "Job ended after %d time units\n", end_time);
+    printf("Throughput = %.2f\n" RESET, (float)NUMBER_OF_JOBS / end_time);
+    
     // Print Line
     for(int i = 0; i < 110; i++){
         printf("_");
@@ -43,9 +44,19 @@ int main()
 
     // Print timeline
     for(int i = 0; i < NUMBER_OF_JOBS; i++){
-        printf("Job %i: %s | Response Time: %2d | Time Completed: %2d | Time Waited: %2d | Turnaround Time: %2d |\n", 
-                jobs[i].id, jobs[i].timeline , jobs[i].response_time, jobs[i].time_completed,
-                jobs[i].time_waited, jobs[i].time_completed - jobs[i].response_time);
+        printf(CYAN "Job %d:" RESET, jobs[i].id);
+
+        for(int j = 0; j < end_time; j++){
+            if(jobs[i].timeline[j] == '#'){
+                printf(GREEN "%c" RESET, jobs[i].timeline[j]); 
+            }else{
+                printf(RED "%c" RESET, jobs[i].timeline[j]);
+            }
+        }
+
+        printf(CYAN "| Response Time: %2d | Time Completed: %2d | Time Waited: %2d | Turnaround Time: %2d |\n" RESET, 
+            jobs[i].response_time, jobs[i].time_completed,jobs[i].time_waited, 
+            jobs[i].time_completed - jobs[i].response_time);
     }
     
     // Print Line
