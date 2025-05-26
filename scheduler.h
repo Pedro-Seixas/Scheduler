@@ -17,6 +17,10 @@ typedef struct
     char timeline[100];
     int state;
     int ran_this_cycle;
+    int time_completed;
+    int response_time;
+    int was_response_time_measured;
+    int time_waited;
 } Job;
 
 // Create a Queue data structure
@@ -45,7 +49,7 @@ void print_queue(Queue* q);
 void append_string(char* s, const char* to_append);
 void run_fifo(Queue* q, Job* jobs, int quantity, pthread_t threads);
 void run_sjf(Queue* q, Job* jobs, int quantity, pthread_t threads);
-void run_priority(Queue* q, Job* jobs, int quantity);
+int run_priority(Queue* q, Job* jobs, int quantity);
 void run_rr(Queue* q, Job* jobs, int quantity, pthread_t threads);
 void *run_job(void *arg);
 #endif

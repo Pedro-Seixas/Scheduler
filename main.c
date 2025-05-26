@@ -25,17 +25,33 @@ int main()
     } 
 
     printf("\nRunning Priority Scheduling...\n\n");
+    
     // Run scheduler
     // run_fifo(&queue, jobs, NUMBER_OF_JOBS); 
     // run_sjf(&queue, jobs, NUMBER_OF_JOBS);
-    run_priority(&queue, jobs, NUMBER_OF_JOBS);
+    int end_time = run_priority(&queue, jobs, NUMBER_OF_JOBS);
     
     // run_rr(&queue, jobs, NUMBER_OF_JOBS);
     
-    // Print timelines
-    for(int i = 0; i < NUMBER_OF_JOBS; i++){
-        printf("Job %i: %s\n", jobs[i].id, jobs[i].timeline);
+    printf("Job ended after %d time units\n", end_time);
+    printf("Throughput = %.2f\n", (float)NUMBER_OF_JOBS / end_time);
+    // Print Line
+    for(int i = 0; i < 110; i++){
+        printf("_");
     }
+    printf("\n\n");
 
+    // Print timeline
+    for(int i = 0; i < NUMBER_OF_JOBS; i++){
+        printf("Job %i: %s | Response Time: %.2d | Time Completed: %2d | Time Waited: %2d | Turnaround Time: %2d |\n", 
+                jobs[i].id, jobs[i].timeline , jobs[i].response_time, jobs[i].time_completed,
+                jobs[i].time_waited, jobs[i].time_completed - jobs[i].response_time);
+    }
+    
+    // Print Line
+    for(int i = 0; i < 110; i++){
+        printf("_");
+    }
+    printf("\n");
     return 0;
 }

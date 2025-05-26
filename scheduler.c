@@ -137,7 +137,8 @@ void run_sjf(Queue* q, Job* jobs, int quantity, pthread_t  threads){
     }
 }
 
-void run_priority(Queue* q, Job* jobs, int quantity){
+// Priority Preemptive
+int run_priority(Queue* q, Job* jobs, int quantity){
     int current_time = 0;
     int jobs_done = 0;
     pthread_cond_t cond[quantity];
@@ -190,7 +191,15 @@ void run_priority(Queue* q, Job* jobs, int quantity){
         for(int i = 0; i < quantity; i++){
             if(current_job == &jobs[i] && jobs[i].state != DONE){
                 jobs[i].state = RUNNING;
+                
+                // Get Response time
+                if(jobs[i].was_response_time_measured == 0){
+                    jobs[i].response_time = current_time;
+                    jobs[i].was_response_time_measured = 1;
+                }
+
             }else if(jobs[i].state == WAITING){
+                jobs[i].time_waited++;
                 jobs[i].timeline[current_time] = '_';
             }else{
                 jobs[i].timeline[current_time] = ' ';
@@ -201,8 +210,6 @@ void run_priority(Queue* q, Job* jobs, int quantity){
             // Signal Job to run
             pthread_cond_signal(&cond[current_job->id]);
             pthread_mutex_unlock(&mutex);
-
-            usleep(2000);
 
             // Wait for thread to run
             while(!current_job->ran_this_cycle);
@@ -221,8 +228,11 @@ void run_priority(Queue* q, Job* jobs, int quantity){
     for(int i = 0; i < quantity; i++){
         pthread_join(threads[i], NULL);
     }
+    
+    return current_time;
 }
 
+// Round Robin
 void run_rr(Queue* q, Job* jobs, int quantity, pthread_t threads){
     int current_time = 0;
     int jobs_done = 0;
@@ -254,6 +264,7 @@ void run_rr(Queue* q, Job* jobs, int quantity, pthread_t threads){
     }
 }
 
+// Thread Function
 void* run_job(void *arg){
 
     ThreadArgs* args = (ThreadArgs*) arg;
@@ -277,6 +288,7 @@ void* run_job(void *arg){
         // Mark it as done
         if(args->job->time_remaining <= 0){
             args->job->state = DONE;
+            args->job->time_completed = *args->current_time;
             pthread_mutex_unlock(args->mutex);
             break;
         }
